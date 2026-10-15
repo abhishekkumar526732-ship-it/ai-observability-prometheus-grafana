@@ -1,0 +1,50 @@
+# ==============================================================================
+# Pod Disruption Budgets (PDB) - POC Mode
+# ==============================================================================
+# NOTE FOR POCs & DEV ENVIRONMENTS:
+# In single-replica POC deployments, 'minAvailable: 1' will block node drains during
+# maintenance. 'maxUnavailable: 1' allows voluntary disruptions while still protecting
+# the workload when scaled beyond 1 replica.
+# ==============================================================================
+
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: chatbot-backend-pdb
+  namespace: qa-chatbot
+  labels:
+    app.kubernetes.io/name: chatbot-backend-pdb
+    app.kubernetes.io/part-of: ai-platform
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: chatbot-backend
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: chatbot-frontend-pdb
+  namespace: qa-chatbot
+  labels:
+    app.kubernetes.io/name: chatbot-frontend-pdb
+    app.kubernetes.io/part-of: ai-platform
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: chatbot-frontend
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: otel-collector-pdb
+  namespace: qa-chatbot
+  labels:
+    app.kubernetes.io/name: otel-collector-pdb
+    app.kubernetes.io/part-of: ai-platform
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: otel-collector

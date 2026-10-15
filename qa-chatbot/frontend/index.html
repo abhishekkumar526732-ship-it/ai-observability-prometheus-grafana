@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="ChatGPT interface powered by OpenAI gpt-oss-120b on Groq and LangChain.">
+  <meta name="theme-color" content="#FFFFFF">
+  <title>ChatGPT | OpenAI 120B on Groq</title>
+  
+  <!-- Preconnect and Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="light-theme">
+  <div class="chatgpt-layout" id="app-layout">
+    
+    <!-- ==================================================================== -->
+    <!-- Collapsible Left Sidebar                                             -->
+    <!-- ==================================================================== -->
+    <aside class="chatgpt-sidebar" id="sidebar">
+      <div class="sidebar-top">
+        <div class="sidebar-header-row">
+          <div class="chatgpt-brand">
+            <svg class="openai-logo" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"/>
+              <path d="M12 6v12M6 12h12"/>
+            </svg>
+            <span class="brand-name">ChatGPT</span>
+          </div>
+          <button type="button" class="icon-btn close-sidebar-btn" id="close-sidebar-btn" title="Close sidebar" aria-label="Close sidebar">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect width="18" height="18" x="3" y="3" rx="2"/>
+              <path d="M9 3v18"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- New Chat Button -->
+        <button type="button" class="new-chat-pill-btn" id="new-chat-btn" aria-label="New chat">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 5v14M5 12h14"/>
+          </svg>
+          <span>New chat</span>
+        </button>
+      </div>
+
+      <!-- Recent History / Sessions -->
+      <div class="sidebar-nav">
+        <div class="history-group">
+          <span class="history-label">Today</span>
+          <div class="history-item active" id="current-chat-item">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+            <span class="history-title" id="history-title">New conversation</span>
+          </div>
+        </div>
+
+        <div class="history-group">
+          <span class="history-label">Model Specs</span>
+          <div class="model-info-card">
+            <div class="info-row">
+              <span class="info-key">Model:</span>
+              <span class="info-val font-mono" id="sidebar-model-name">openai/gpt-oss-120b</span>
+            </div>
+            <div class="info-row">
+              <span class="info-key">Params:</span>
+              <span class="info-val">117B MoE (5.1B active)</span>
+            </div>
+            <div class="info-row">
+              <span class="info-key">Inference:</span>
+              <span class="info-val highlight-green">Groq LPUs (~500 T/s)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar Footer -->
+      <div class="sidebar-footer">
+        <div class="status-row">
+          <span class="status-dot status-checking" id="status-dot"></span>
+          <span class="status-text" id="status-label">Checking status...</span>
+        </div>
+        <div class="session-info-row">
+          <span class="session-label-mini">Session:</span>
+          <span class="session-uuid font-mono" id="session-id-display">Generating...</span>
+          <button type="button" class="icon-btn-sm" id="copy-session-btn" title="Copy Session ID">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ==================================================================== -->
+    <!-- Main Content Area                                                    -->
+    <!-- ==================================================================== -->
+    <div class="main-content">
+      
+      <!-- Top Navigation Bar -->
+      <header class="top-navbar">
+        <div class="top-nav-left">
+          <button type="button" class="icon-btn toggle-sidebar-btn" id="open-sidebar-btn" title="Open sidebar" aria-label="Open sidebar">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect width="18" height="18" x="3" y="3" rx="2"/>
+              <path d="M9 3v18"/>
+            </svg>
+          </button>
+          
+          <div class="model-dropdown-trigger" id="model-selector-badge">
+            <span class="model-title">ChatGPT</span>
+            <span class="model-pill" id="active-model-display">openai/gpt-oss-120b</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="m6 9 6 6 6-6"/>
+            </svg>
+          </div>
+        </div>
+
+        <div class="top-nav-right">
+          <button type="button" class="icon-btn header-new-btn" id="header-new-chat-btn" title="New chat" aria-label="New chat">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 5v14M5 12h14"/>
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- Error Notification Banner -->
+      <aside class="error-banner hidden" id="error-banner" role="alert">
+        <div class="error-content">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+          <span class="error-text" id="error-message">An error occurred.</span>
+        </div>
+        <div class="error-actions">
+          <button type="button" class="btn-retry" id="retry-btn">Retry</button>
+          <button type="button" class="icon-btn-sm" id="dismiss-error-btn" aria-label="Dismiss">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+      </aside>
+
+      <!-- Chat Viewport & Messages Scroll Container -->
+      <main class="chat-scroll-area" id="chat-viewport">
+        
+        <!-- ChatGPT Iconic Welcome Hero ("What can I help with?") -->
+        <section class="chatgpt-welcome" id="welcome-screen">
+          <div class="welcome-center">
+            <div class="welcome-icon">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#0D0D0D" stroke-width="1.8">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 8v8M8 12h8"/>
+              </svg>
+            </div>
+            <h1 class="welcome-heading">What can I help with?</h1>
+            <p class="welcome-subheading">
+              Powered by <strong>OpenAI gpt-oss-120b</strong> on Groq LPUs. Fast, intelligent reasoning with multi-turn context.
+            </p>
+
+            <!-- Quick Prompt Suggestions -->
+            <div class="suggestions-grid">
+              <button type="button" class="suggestion-chip" data-prompt="Explain Python decorators with a clean, practical code example.">
+                <span class="chip-title">Python Decorators</span>
+                <span class="chip-desc">Clean, practical code example</span>
+              </button>
+
+              <button type="button" class="suggestion-chip" data-prompt="How does OpenAI's gpt-oss-120b Mixture-of-Experts (MoE) activate only 5.1B parameters per token out of 117B total?">
+                <span class="chip-title">120B MoE Architecture</span>
+                <span class="chip-desc">How 5.1B params activate per token</span>
+              </button>
+
+              <button type="button" class="suggestion-chip" data-prompt="Design a high-throughput, thread-safe asynchronous task queue in Python.">
+                <span class="chip-title">Async Task Queue</span>
+                <span class="chip-desc">Thread-safe worker pools</span>
+              </button>
+
+              <button type="button" class="suggestion-chip" data-prompt="How do Groq LPUs achieve ultra-fast inference speed compared to traditional GPUs?">
+                <span class="chip-title">Groq LPU Speed</span>
+                <span class="chip-desc">Deterministic execution architecture</span>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Message Stream -->
+        <div class="conversation-stream hidden" id="messages-list"></div>
+
+        <!-- Typing Indicator -->
+        <div class="typing-row hidden" id="typing-indicator">
+          <div class="assistant-icon-badge">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2">
+              <circle cx="12" cy="12" r="9"/>
+              <path d="M12 7v10M7 12h10"/>
+            </svg>
+          </div>
+          <div class="typing-dots">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </div>
+
+        <div class="scroll-anchor" id="scroll-anchor"></div>
+      </main>
+
+      <!-- ==================================================================== -->
+      <!-- Floating ChatGPT Bottom Input Area                                   -->
+      <!-- ==================================================================== -->
+      <footer class="input-section">
+        <div class="input-capsule-wrapper">
+          <form class="chat-form" id="chat-form" onsubmit="return false;">
+            <textarea
+              class="chat-textarea"
+              id="chat-input"
+              rows="1"
+              placeholder="Message ChatGPT..."
+              maxlength="4000"
+              aria-label="User query input"
+              required
+            ></textarea>
+
+            <button
+              type="submit"
+              class="circle-send-btn"
+              id="send-btn"
+              aria-label="Send message"
+              disabled
+            >
+              <span class="btn-spinner hidden" id="send-spinner"></span>
+              <svg class="send-arrow-icon" id="send-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="19" x2="12" y2="5"></line>
+                <polyline points="5 12 12 5 19 12"></polyline>
+              </svg>
+            </button>
+          </form>
+        </div>
+        <div class="disclaimer-text">
+          <span>ChatGPT can make mistakes. Verify important info.</span>
+        </div>
+      </footer>
+
+    </div>
+  </div>
+
+  <!-- Vanilla Scripts -->
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+# ==============================================================================
+# Horizontal Pod Autoscaler (HPA) for Q&A Chatbot Backend
+# PREREQUISITE: Kubernetes metrics-server must be installed and operational on
+# the EKS cluster for resource metrics (CPU/Memory) to be queryable by the HPA controller.
+# Verify with: kubectl get deployment metrics-server -n kube-system
+# ==============================================================================
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: chatbot-backend-hpa
+  namespace: qa-chatbot
+  labels:
+    app.kubernetes.io/name: chatbot-backend-hpa
+    app.kubernetes.io/part-of: ai-platform
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: chatbot-backend
+  # POC Configuration: Scale from 1 to 3 pods
+  minReplicas: 1
+  maxReplicas: 3
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 0
+      policies:
+        - type: Percent
+          value: 100
+          periodSeconds: 15
+        - type: Pods
+          value: 2
+          periodSeconds: 15
+      selectPolicy: Max
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+        - type: Percent
+          value: 25
+          periodSeconds: 60

@@ -1,0 +1,79 @@
+[
+  {
+    "AlarmName": "qa-chatbot-high-5xx-error-rate",
+    "AlarmDescription": "Triggers when HTTP 5xx error rate from the FastAPI backend exceeds 2% over a 5-minute evaluation period.",
+    "Namespace": "QAChatbot/AIPlatform",
+    "MetricName": "http.server.requests",
+    "Dimensions": [
+      { "Name": "service.name", "Value": "qa-chatbot" },
+      { "Name": "http.status_code", "Value": "500" }
+    ],
+    "Statistic": "Sum",
+    "Period": 300,
+    "EvaluationPeriods": 1,
+    "Threshold": 10.0,
+    "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+    "TreatMissingData": "notBreaching"
+  },
+  {
+    "AlarmName": "qa-chatbot-high-p95-latency",
+    "AlarmDescription": "Triggers when 95th percentile end-to-end request duration exceeds 5000ms (5 seconds) over a 5-minute period.",
+    "Namespace": "QAChatbot/AIPlatform",
+    "MetricName": "http.server.request.duration",
+    "Dimensions": [
+      { "Name": "service.name", "Value": "qa-chatbot" }
+    ],
+    "ExtendedStatistic": "p95",
+    "Period": 300,
+    "EvaluationPeriods": 2,
+    "Threshold": 5000.0,
+    "ComparisonOperator": "GreaterThanThreshold",
+    "TreatMissingData": "notBreaching"
+  },
+  {
+    "AlarmName": "qa-chatbot-pod-crash-loop",
+    "AlarmDescription": "Triggers when any container in the qa-chatbot namespace restarts more than 3 times within a 15-minute window.",
+    "Namespace": "ContainerInsights",
+    "MetricName": "pod_number_of_container_restarts",
+    "Dimensions": [
+      { "Name": "ClusterName", "Value": "qa-chatbot-eks" },
+      { "Name": "Namespace", "Value": "qa-chatbot" }
+    ],
+    "Statistic": "Sum",
+    "Period": 300,
+    "EvaluationPeriods": 3,
+    "Threshold": 3.0,
+    "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+    "TreatMissingData": "notBreaching"
+  },
+  {
+    "AlarmName": "qa-chatbot-otel-collector-export-failure",
+    "AlarmDescription": "Triggers when the OpenTelemetry Collector drops or fails to enqueue spans/metrics to AWS CloudWatch or X-Ray.",
+    "Namespace": "QAChatbot/AIPlatform",
+    "MetricName": "exporter_enqueue_failed_spans",
+    "Dimensions": [
+      { "Name": "service.name", "Value": "otel-collector" }
+    ],
+    "Statistic": "Sum",
+    "Period": 300,
+    "EvaluationPeriods": 1,
+    "Threshold": 1.0,
+    "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+    "TreatMissingData": "notBreaching"
+  },
+  {
+    "AlarmName": "qa-chatbot-estimated-daily-llm-spend-exceeded",
+    "AlarmDescription": "[REQUIRES APPLICATION INSTRUMENTATION] Triggers when cumulative estimated Groq token cost exceeds $25.00 within a 24-hour period.",
+    "Namespace": "QAChatbot/AIPlatform",
+    "MetricName": "llm.cost.estimated",
+    "Dimensions": [
+      { "Name": "service.name", "Value": "qa-chatbot" }
+    ],
+    "Statistic": "Sum",
+    "Period": 86400,
+    "EvaluationPeriods": 1,
+    "Threshold": 25.0,
+    "ComparisonOperator": "GreaterThanThreshold",
+    "TreatMissingData": "notBreaching"
+  }
+]

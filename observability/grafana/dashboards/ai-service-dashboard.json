@@ -1,0 +1,377 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "id": 100,
+      "title": "Application Golden Signals & Traffic (Infrastructure Telemetry)",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "cloudwatch",
+        "uid": "cloudwatch-default"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "req/sec",
+            "drawStyle": "line",
+            "fillOpacity": 15,
+            "lineWidth": 2
+          },
+          "unit": "reqps"
+        }
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 1 },
+      "id": 1,
+      "options": {
+        "legend": { "calcs": ["mean", "lastNotNull"], "displayMode": "table", "placement": "bottom" }
+      },
+      "title": "Request Throughput (RPS)",
+      "type": "timeseries",
+      "targets": [
+        {
+          "datasource": { "type": "cloudwatch", "uid": "cloudwatch-default" },
+          "dimensions": {
+            "service.name": "$service"
+          },
+          "expression": "",
+          "id": "m1",
+          "matchExact": true,
+          "metricEditorMode": 0,
+          "metricName": "http.server.requests",
+          "namespace": "QAChatbot/AIPlatform",
+          "period": "60",
+          "queryMode": "Metrics",
+          "refId": "A",
+          "statistic": "Sum"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "cloudwatch",
+        "uid": "cloudwatch-default"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "%",
+            "drawStyle": "line",
+            "fillOpacity": 20,
+            "lineWidth": 2
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 1 },
+              { "color": "red", "value": 5 }
+            ]
+          },
+          "unit": "percent"
+        }
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 1 },
+      "id": 2,
+      "options": {
+        "legend": { "calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom" }
+      },
+      "title": "Request Error Rate (HTTP 4xx & 5xx)",
+      "type": "timeseries",
+      "targets": [
+        {
+          "datasource": { "type": "cloudwatch", "uid": "cloudwatch-default" },
+          "dimensions": {
+            "service.name": "$service",
+            "http.status_code": "500"
+          },
+          "expression": "",
+          "id": "m_500",
+          "metricName": "http.server.requests",
+          "namespace": "QAChatbot/AIPlatform",
+          "period": "60",
+          "queryMode": "Metrics",
+          "refId": "A",
+          "statistic": "Sum"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "cloudwatch",
+        "uid": "cloudwatch-default"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisColorMode": "text",
+            "axisLabel": "Latency (ms)",
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "lineWidth": 2
+          },
+          "unit": "ms"
+        }
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 1 },
+      "id": 3,
+      "options": {
+        "legend": { "calcs": ["mean", "p95", "max"], "displayMode": "table", "placement": "bottom" }
+      },
+      "title": "End-to-End Request Latency Percentiles (p50 / p90 / p99)",
+      "type": "timeseries",
+      "targets": [
+        {
+          "datasource": { "type": "cloudwatch", "uid": "cloudwatch-default" },
+          "dimensions": {
+            "service.name": "$service"
+          },
+          "id": "p50",
+          "metricName": "http.server.request.duration",
+          "namespace": "QAChatbot/AIPlatform",
+          "period": "60",
+          "queryMode": "Metrics",
+          "refId": "A",
+          "statistic": "p50"
+        },
+        {
+          "datasource": { "type": "cloudwatch", "uid": "cloudwatch-default" },
+          "dimensions": {
+            "service.name": "$service"
+          },
+          "id": "p90",
+          "metricName": "http.server.request.duration",
+          "namespace": "QAChatbot/AIPlatform",
+          "period": "60",
+          "queryMode": "Metrics",
+          "refId": "B",
+          "statistic": "p90"
+        },
+        {
+          "datasource": { "type": "cloudwatch", "uid": "cloudwatch-default" },
+          "dimensions": {
+            "service.name": "$service"
+          },
+          "id": "p99",
+          "metricName": "http.server.request.duration",
+          "namespace": "QAChatbot/AIPlatform",
+          "period": "60",
+          "queryMode": "Metrics",
+          "refId": "C",
+          "statistic": "p99"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 9 },
+      "id": 101,
+      "title": "LLM Domain & Cost Telemetry [REQUIRES APPLICATION INSTRUMENTATION]",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "cloudwatch",
+        "uid": "cloudwatch-default"
+      },
+      "description": "NOTE: Emitted only when optional application-level LLM instrumentation is active in app/services/llm_service.py.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "drawStyle": "bars",
+            "fillOpacity": 40
+          },
+          "unit": "short"
+        }
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 10 },
+      "id": 4,
+      "options": {
+        "legend": { "calcs": ["sum", "lastNotNull"], "displayMode": "table", "placement": "bottom" }
+      },
+      "title": "Groq LLM Token Consumption (Prompt vs Completion) [OPT-IN]",
+      "type": "timeseries",
+      "targets": [
+        {
+          "datasource": { "type": "cloudwatch", "uid": "cloudwatch-default" },
+          "dimensions": { "service.name": "$service" },
+          "metricName": "llm.tokens.prompt",
+          "namespace": "QAChatbot/AIPlatform",
+          "period": "60",
+          "queryMode": "Metrics",
+          "refId": "PromptTokens",
+          "statistic": "Sum"
+        },
+        {
+          "datasource": { "type": "cloudwatch", "uid": "cloudwatch-default" },
+          "dimensions": { "service.name": "$service" },
+          "metricName": "llm.tokens.completion",
+          "namespace": "QAChatbot/AIPlatform",
+          "period": "60",
+          "queryMode": "Metrics",
+          "refId": "CompletionTokens",
+          "statistic": "Sum"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "cloudwatch",
+        "uid": "cloudwatch-default"
+      },
+      "description": "Calculated by multiplying prompt tokens ($0.15/1M) and completion tokens ($0.60/1M) on Groq LPUs.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 20
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "blue", "value": null },
+              { "color": "orange", "value": 5 },
+              { "color": "red", "value": 20 }
+            ]
+          },
+          "unit": "currencyUSD"
+        }
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 10 },
+      "id": 5,
+      "options": {
+        "legend": { "calcs": ["sum"], "displayMode": "table", "placement": "bottom" }
+      },
+      "title": "Estimated LLM Provider Cost (Groq API Usage) [OPT-IN]",
+      "type": "timeseries",
+      "targets": [
+        {
+          "datasource": { "type": "cloudwatch", "uid": "cloudwatch-default" },
+          "dimensions": { "service.name": "$service" },
+          "metricName": "llm.cost.estimated",
+          "namespace": "QAChatbot/AIPlatform",
+          "period": "300",
+          "queryMode": "Metrics",
+          "refId": "EstimatedCost",
+          "statistic": "Sum"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "cloudwatch",
+        "uid": "cloudwatch-default"
+      },
+      "description": "Provider error taxonomy (HTTP 429 Rate Limits vs HTTP 504 Timeouts vs HTTP 502 Failures).",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "drawStyle": "points",
+            "pointSize": 6
+          },
+          "unit": "short"
+        }
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 10 },
+      "id": 6,
+      "options": {
+        "legend": { "calcs": ["sum"], "displayMode": "table", "placement": "bottom" }
+      },
+      "title": "Model-Level Error Taxonomy [OPT-IN]",
+      "type": "timeseries",
+      "targets": [
+        {
+          "datasource": { "type": "cloudwatch", "uid": "cloudwatch-default" },
+          "dimensions": { "service.name": "$service" },
+          "metricName": "llm.errors",
+          "namespace": "QAChatbot/AIPlatform",
+          "period": "60",
+          "queryMode": "Metrics",
+          "refId": "ModelErrors",
+          "statistic": "Sum"
+        }
+      ]
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": ["ai", "fastapi", "groq", "langchain", "observability"],
+  "templating": {
+    "list": [
+      {
+        "current": { "selected": true, "text": "production", "value": "production" },
+        "hide": 0,
+        "label": "Environment",
+        "name": "environment",
+        "options": [
+          { "selected": true, "text": "production", "value": "production" },
+          { "selected": false, "text": "staging", "value": "staging" },
+          { "selected": false, "text": "development", "value": "development" }
+        ],
+        "query": "production,staging,development",
+        "type": "custom"
+      },
+      {
+        "current": { "selected": true, "text": "qa-chatbot", "value": "qa-chatbot" },
+        "hide": 0,
+        "label": "Namespace",
+        "name": "namespace",
+        "options": [{ "selected": true, "text": "qa-chatbot", "value": "qa-chatbot" }],
+        "query": "qa-chatbot",
+        "type": "custom"
+      },
+      {
+        "current": { "selected": true, "text": "qa-chatbot", "value": "qa-chatbot" },
+        "hide": 0,
+        "label": "Service",
+        "name": "service",
+        "options": [{ "selected": true, "text": "qa-chatbot", "value": "qa-chatbot" }],
+        "query": "qa-chatbot",
+        "type": "custom"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": ["10s", "30s", "1m", "5m"]
+  },
+  "timezone": "browser",
+  "title": "AI Service & LLM Performance Dashboard",
+  "uid": "ai-service-performance",
+  "version": 1
+}

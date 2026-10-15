@@ -1,0 +1,173 @@
+# ==============================================================================
+# Q&A Chatbot Workload Deployments (Backend & Frontend)
+# Configured for AWS EKS with non-root security context and confirmed probes
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 1. FastAPI Backend API Deployment
+# ------------------------------------------------------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chatbot-backend
+  namespace: qa-chatbot
+  labels:
+    app.kubernetes.io/name: chatbot-backend
+    app.kubernetes.io/part-of: ai-platform
+    app.kubernetes.io/component: api
+spec:
+  # POC Configuration: 1 replica for cost-effective development & testing
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: chatbot-backend
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: chatbot-backend
+        app.kubernetes.io/part-of: ai-platform
+        app.kubernetes.io/component: api
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: "8000"
+    spec:
+      serviceAccountName: qa-chatbot-backend-sa
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: backend
+          # Explicit image placeholder to be replaced with real ECR repository URI
+          image: <AWS_ACCOUNT_ID>.dkr.ecr.<AWS_REGION>.amazonaws.com/qa-chatbot-backend:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http-api
+              containerPort: 8000
+              protocol: TCP
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            capabilities:
+              drop:
+                - ALL
+          envFrom:
+            - configMapRef:
+                name: chatbot-config
+          env:
+            # Sensitive keys injected from Kubernetes Secret
+            - name: GROQ_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: chatbot-secrets
+                  key: GROQ_API_KEY
+            # Optional LangSmith integration variables (uncomment if enabled)
+            # - name: LANGSMITH_API_KEY
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: chatbot-secrets
+            #       key: LANGSMITH_API_KEY
+            #       optional: true
+            # - name: LANGSMITH_TRACING
+            #   value: "true"
+            # - name: LANGSMITH_PROJECT
+            #   value: "qa-chatbot-prod"
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: 1000m
+              memory: 1Gi
+          # Compatible health probe endpoints discovered in existing codebase
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: http-api
+            initialDelaySeconds: 15
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /api/ready
+              port: http-api
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 2
+---
+# ------------------------------------------------------------------------------
+# 2. Nginx Static Host & Reverse Proxy Frontend Deployment
+# ------------------------------------------------------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chatbot-frontend
+  namespace: qa-chatbot
+  labels:
+    app.kubernetes.io/name: chatbot-frontend
+    app.kubernetes.io/part-of: ai-platform
+    app.kubernetes.io/component: web
+spec:
+  # POC Configuration: 1 replica for cost-effective development & testing
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: chatbot-frontend
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: chatbot-frontend
+        app.kubernetes.io/part-of: ai-platform
+        app.kubernetes.io/component: web
+    spec:
+      serviceAccountName: qa-chatbot-frontend-sa
+      securityContext:
+        runAsNonRoot: false # Standard Nginx Alpine requires root on startup to bind port 80
+      containers:
+        - name: frontend
+          # Explicit image placeholder to be replaced with real ECR repository URI
+          image: <AWS_ACCOUNT_ID>.dkr.ecr.<AWS_REGION>.amazonaws.com/qa-chatbot-frontend:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http-web
+              containerPort: 80
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http-web
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http-web
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 2

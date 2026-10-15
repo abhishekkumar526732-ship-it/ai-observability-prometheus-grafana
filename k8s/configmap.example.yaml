@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: chatbot-config
+  namespace: qa-chatbot
+  labels:
+    app.kubernetes.io/name: qa-chatbot
+    app.kubernetes.io/part-of: ai-platform
+data:
+  APP_ENV: "production"
+  APP_HOST: "0.0.0.0"
+  APP_PORT: "8000"
+  GROQ_MODEL: "openai/gpt-oss-120b"
+  REASONING_EFFORT: "medium"
+  LLM_TEMPERATURE: "0.2"
+  LLM_MAX_TOKENS: "1024"
+  LLM_TIMEOUT_SECONDS: "60.0"
+  MAX_MESSAGE_LENGTH: "4000"
+  MAX_HISTORY_TURNS: "10"
+  OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector.qa-chatbot.svc.cluster.local:4317"
+  OTEL_SERVICE_NAME: "qa-chatbot"

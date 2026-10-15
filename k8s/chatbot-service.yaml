@@ -1,0 +1,43 @@
+# ==============================================================================
+# Internal Private ClusterIP Services for Q&A Chatbot Components
+# ==============================================================================
+
+# 1. Backend Service (Named 'backend' to match frontend/nginx.conf proxy_pass upstream)
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+  namespace: qa-chatbot
+  labels:
+    app.kubernetes.io/name: chatbot-backend
+    app.kubernetes.io/part-of: ai-platform
+    app.kubernetes.io/component: api
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: chatbot-backend
+  ports:
+    - name: http-api
+      port: 8000
+      targetPort: 8000
+      protocol: TCP
+---
+# 2. Frontend Service (Internal ClusterIP for Ingress routing)
+apiVersion: v1
+kind: Service
+metadata:
+  name: chatbot-frontend
+  namespace: qa-chatbot
+  labels:
+    app.kubernetes.io/name: chatbot-frontend
+    app.kubernetes.io/part-of: ai-platform
+    app.kubernetes.io/component: web
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: chatbot-frontend
+  ports:
+    - name: http-web
+      port: 80
+      targetPort: 80
+      protocol: TCP

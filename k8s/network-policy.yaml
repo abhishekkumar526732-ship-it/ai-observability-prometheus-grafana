@@ -1,0 +1,117 @@
+# ==============================================================================
+# Kubernetes NetworkPolicies for Microsegmentation and Zero-Trust Isolation
+# Requires a network plugin that supports NetworkPolicy (e.g. Amazon VPC CNI with
+# NetworkPolicy controller enabled or Calico).
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 1. Backend Ingress & Egress Isolation
+# ------------------------------------------------------------------------------
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: backend-network-policy
+  namespace: qa-chatbot
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: chatbot-backend
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # Allow incoming HTTP connections only from the Frontend reverse proxy
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: chatbot-frontend
+      ports:
+        - protocol: TCP
+          port: 8000
+    # Allow Prometheus / Telemetry scraping from the OpenTelemetry Collector
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: otel-collector
+      ports:
+        - protocol: TCP
+          port: 8000
+  egress:
+    # Allow DNS resolution via kube-system CoreDNS
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    # Allow OTLP telemetry forwarding to internal OpenTelemetry Collector
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: otel-collector
+      ports:
+        - protocol: TCP
+          port: 4317
+        - protocol: TCP
+          port: 4318
+    # Allow HTTPS egress for external Groq Cloud API (api.groq.com:443)
+    # and optional LangSmith Cloud API (api.smith.langchain.com:443)
+    - ports:
+        - protocol: TCP
+          port: 443
+
+---
+# ------------------------------------------------------------------------------
+# 2. OpenTelemetry Collector Ingress & Egress Isolation
+# ------------------------------------------------------------------------------
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: otel-collector-network-policy
+  namespace: qa-chatbot
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: otel-collector
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # Accept OTLP telemetry only from workloads within the same namespace
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/part-of: ai-platform
+      ports:
+        - protocol: TCP
+          port: 4317
+        - protocol: TCP
+          port: 4318
+    # Allow kubelet liveness/readiness health probes
+    - ports:
+        - protocol: TCP
+          port: 13133
+  egress:
+    # Allow DNS resolution via CoreDNS
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    # Allow HTTPS egress to AWS services (CloudWatch Logs/Metrics, X-Ray, AMP)
+    - ports:
+        - protocol: TCP
+          port: 443

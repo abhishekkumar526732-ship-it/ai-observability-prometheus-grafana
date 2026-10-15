@@ -1,0 +1,29 @@
+# ==============================================================================
+# POC / Development Variable Assignments (Lightweight & Low-Cost)
+# Copy this file to terraform.tfvars
+# ==============================================================================
+
+aws_region                    = "us-east-1"
+environment                   = "poc"
+cluster_name                  = "qa-chatbot-eks"
+kubernetes_version            = "1.29"
+
+# Networking
+vpc_cidr                      = "10.0.0.0/16"
+public_subnet_cidrs           = ["10.0.1.0/24", "10.0.2.0/24"]
+private_subnet_cidrs          = ["10.0.10.0/24", "10.0.20.0/24"]
+
+# POC Compute Sizing (Single t3.medium node to keep costs under ~$30/month)
+node_instance_types           = ["t3.medium"]
+node_min_size                 = 1
+node_max_size                 = 2
+node_desired_size             = 1
+
+# CloudWatch Logging (7 days retention to avoid log storage costs)
+enable_cloudwatch_logging     = true
+cloudwatch_log_retention_days = 7
+
+# Set to false for POC to eliminate Amazon Managed Prometheus ($) & Managed Grafana ($9/user/mo)
+# (Use the free local Grafana compose stack in observability/local-poc/ instead!)
+enable_managed_prometheus     = false
+enable_managed_grafana        = false
