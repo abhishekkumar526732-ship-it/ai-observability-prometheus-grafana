@@ -19,6 +19,12 @@ An end-to-end, enterprise-ready platform integrating a high-performance **Q&A Ch
 │   ├── setup-and-deployment.md     # Local development & Kubernetes EKS runbook
 │   └── testing-guide.md            # Automated testing & mocking guide
 │
+├── FDE-docs/                       # Forward Deployed Engineering (FDE) Suite
+│   ├── README.md                   # Suite overview & stakeholder sign-off matrix
+│   ├── BRD.md                      # Business Requirements Document (ROI, FinOps, SLAs)
+│   ├── TRD.md                      # Technical Requirements Document (AWS EKS, Sizing, VPC)
+│   └── SRD.md                      # Software Requirements Document (API Contracts, BDD)
+│
 ├── infrastructure/                 # Infrastructure as Code (IaC)
 │   └── terraform/                  # Terraform configurations for AWS EKS & services
 │       ├── main.tf                 # Root Terraform provider & resource definitions
@@ -95,6 +101,7 @@ An end-to-end, enterprise-ready platform integrating a high-performance **Q&A Ch
 | Layer | Path | Key Technologies | Documentation |
 | :--- | :--- | :--- | :--- |
 | **Documentation** | [`docs/`](file:///d:/Observability%20and%20cost%20dashboard%20for%20an%20AI%20service/docs/) | Architecture, API, Observability, Deployment | [Docs Index](file:///d:/Observability%20and%20cost%20dashboard%20for%20an%20AI%20service/docs/README.md) |
+| **FDE Suite** | [`FDE-docs/`](file:///d:/Observability%20and%20cost%20dashboard%20for%20an%20AI%20service/FDE-docs/) | BRD, TRD, SRD, Stakeholder Matrix | [FDE Index](file:///d:/Observability%20and%20cost%20dashboard%20for%20an%20AI%20service/FDE-docs/README.md) |
 | **Application** | [`qa-chatbot/`](file:///d:/Observability%20and%20cost%20dashboard%20for%20an%20AI%20service/qa-chatbot/) | FastAPI, LangChain, Groq LPUs, Vanilla JS | [App Readme](file:///d:/Observability%20and%20cost%20dashboard%20for%20an%20AI%20service/qa-chatbot/README.md) |
 | **Observability** | [`observability/`](file:///d:/Observability%20and%20cost%20dashboard%20for%20an%20AI%20service/observability/) | OpenTelemetry, Prometheus, Grafana, LangSmith | [Observability Guides](file:///d:/Observability%20and%20cost%20dashboard%20for%20an%20AI%20service/observability/) |
 | **Kubernetes** | [`k8s/`](file:///d:/Observability%20and%20cost%20dashboard%20for%20an%20AI%20service/k8s/) | EKS Manifests, HPA, NetworkPolicy, PDB | [K8s Readme](file:///d:/Observability%20and%20cost%20dashboard%20for%20an%20AI%20service/k8s/README.md) |

@@ -5,6 +5,7 @@ A modular, production-grade conversational AI assistant featuring OpenAI's flags
 > 📖 **Comprehensive Documentation:**
 > * [System Architecture](file:///d:/Observability%20and%20cost%20dashboard%20for%20an%20AI%20service/docs/architecture.md) &bull; [REST API Reference](file:///d:/Observability%20and%20cost%20dashboard%20for%20an%20AI%20service/docs/api-reference.md) &bull; [Observability & Tracing](file:///d:/Observability%20and%20cost%20dashboard%20for%20an%20AI%20service/docs/observability-and-tracing.md)
 > * [Setup & Deployment](file:///d:/Observability%20and%20cost%20dashboard%20for%20an%20AI%20service/docs/setup-and-deployment.md) &bull; [Testing Guide](file:///d:/Observability%20and%20cost%20dashboard%20for%20an%20AI%20service/docs/testing-guide.md)
+> * **FDE Engineering Suite:** [FDE Index](file:///d:/Observability%20and%20cost%20dashboard%20for%20an%20AI%20service/FDE-docs/README.md) &bull; [BRD](file:///d:/Observability%20and%20cost%20dashboard%20for%20an%20AI%20service/FDE-docs/BRD.md) &bull; [TRD](file:///d:/Observability%20and%20cost%20dashboard%20for%20an%20AI%20service/FDE-docs/TRD.md) &bull; [SRD](file:///d:/Observability%20and%20cost%20dashboard%20for%20an%20AI%20service/FDE-docs/SRD.md)
 
 ---
 
